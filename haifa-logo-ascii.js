@@ -1,5 +1,5 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=11", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=12", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -15,6 +15,7 @@ template.innerHTML = `
       background: var(--haifa-ascii-background, #07111f);
       border-radius: var(--haifa-ascii-radius, 0.75rem);
       contain: content;
+      perspective: 900px;
     }
 
     canvas {
@@ -22,6 +23,33 @@ template.innerHTML = `
       width: 100%;
       max-width: 100%;
       height: 100%;
+      animation: haifa-ascii-spin var(--haifa-ascii-duration, 5.5s) linear infinite;
+      backface-visibility: visible;
+      transform-origin: center;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    :host([paused]) canvas {
+      animation: none;
+      transform: rotateY(0deg);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host(:not([motion="always"])) canvas {
+        animation: none;
+        transform: rotateY(0deg);
+      }
+    }
+
+    @keyframes haifa-ascii-spin {
+      from {
+        transform: rotateY(0deg);
+      }
+
+      to {
+        transform: rotateY(360deg);
+      }
     }
 
     .message {
@@ -200,7 +228,7 @@ class HaifaLogoAscii extends HTMLElement {
     const elapsed = this.hasAttribute("paused") || this.motionReduced
       ? 0
       : (now - this.startTime) / 1000;
-    const angle = elapsed * rotationSpeed;
+    const angle = 0;
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
     const scale = Math.min(columns / 11, rows / 5.8);
