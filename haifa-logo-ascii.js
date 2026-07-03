@@ -1,5 +1,5 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=16", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=17", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -75,7 +75,7 @@ class HaifaLogoAscii extends HTMLElement {
     this.message = this.shadowRoot.querySelector(".message");
     this.context = this.canvas.getContext("2d", { alpha: false });
     this.points = null;
-    this.startTime = performance.now();
+    this.frameIndex = 0;
     this.animationFrame = 0;
     this.animationTimer = 0;
     this.reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -106,7 +106,6 @@ class HaifaLogoAscii extends HTMLElement {
   }
 
   onMotionChange = () => {
-    this.startTime = performance.now();
     this.startAnimation();
   };
 
@@ -127,7 +126,7 @@ class HaifaLogoAscii extends HTMLElement {
       .then((points) => {
         if (this.activeRequest !== requestId) return;
         this.points = points;
-        this.startTime = performance.now();
+        this.frameIndex = 0;
         this.resize();
         this.startAnimation();
       })
@@ -139,11 +138,11 @@ class HaifaLogoAscii extends HTMLElement {
   startAnimation() {
     cancelAnimationFrame(this.animationFrame);
     clearInterval(this.animationTimer);
-    this.draw(performance.now());
+    this.draw();
     if (this.hasAttribute("paused") || this.motionReduced) return;
 
     const fps = Math.max(1, Math.min(60, Number(this.getAttribute("fps")) || 24));
-    this.animationTimer = setInterval(() => this.draw(performance.now()), 1000 / fps);
+    this.animationTimer = setInterval(() => this.draw(), 1000 / fps);
   }
 
   updateLabel() {
@@ -161,11 +160,11 @@ class HaifaLogoAscii extends HTMLElement {
     if (this.canvas.width !== width || this.canvas.height !== height) {
       this.canvas.width = width;
       this.canvas.height = height;
-      this.draw(performance.now());
+      this.draw();
     }
   }
 
-  draw(now) {
+  draw() {
     if (!this.points || !this.canvas.width || !this.canvas.height) return;
 
     const ctx = this.context;
@@ -182,12 +181,11 @@ class HaifaLogoAscii extends HTMLElement {
     zBuffer.fill(-1e9);
 
     const speed = Number(this.getAttribute("speed"));
-    const rotationSpeed = Number.isFinite(speed) ? speed : 0.85;
-    const elapsed = this.hasAttribute("paused") || this.motionReduced
-      ? 0
-      : (now - this.startTime) / 1000;
-    const angleY = elapsed * rotationSpeed;
-    this.dataset.frame = String(Math.floor(elapsed * 24) % 1000);
+    const rotationSpeed = Number.isFinite(speed) ? speed : 1;
+    const direction = rotationSpeed < 0 ? -1 : 1;
+    if (!this.hasAttribute("paused") && !this.motionReduced) this.frameIndex += direction;
+    const angleY = this.frameIndex * 0.075 * Math.abs(rotationSpeed);
+    this.dataset.frame = String(this.frameIndex);
     const angleX = -0.18;
     const cosX = Math.cos(angleX);
     const sinX = Math.sin(angleX);
