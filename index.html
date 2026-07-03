@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>3D ASCII Logo Components</title>
+    <title>3D ASCII Logo Previews</title>
     <style>
       * { box-sizing: border-box; }
       body {
@@ -16,28 +16,30 @@
       main { width: min(1100px, 100%); margin: auto; }
       h1 { margin: 0 0 2rem; }
       h2 { margin: 2rem 0 0.75rem; }
-      haifa-logo-ascii { box-shadow: 0 1rem 3rem rgb(24 50 71 / 16%); }
-      .white { --haifa-ascii-background: #fff; }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+        box-shadow: 0 1rem 3rem rgb(24 50 71 / 16%);
+      }
     </style>
-    <script type="module" src="./haifa-logo-ascii.js?v=14"></script>
   </head>
   <body>
     <main>
-      <h1>3D ASCII logo components</h1>
+      <h1>3D ASCII logo previews</h1>
 
       <h2>University of Haifa</h2>
-      <haifa-logo-ascii
-        label="Animated 3D ASCII art of the University of Haifa logo"
-        motion="always"
-      ></haifa-logo-ascii>
+      <img
+        src="./haifa-logo-preview.gif"
+        alt="Animated 3D ASCII art of the University of Haifa logo"
+      />
 
       <h2>Geometric logo</h2>
-      <haifa-logo-ascii
-        class="white"
-        src="./second-logo-points.json?v=14"
-        label="Animated 3D ASCII art of the blue geometric logo"
-        motion="always"
-      ></haifa-logo-ascii>
+      <img
+        src="./second-logo-preview.gif"
+        alt="Animated 3D ASCII art of the blue geometric logo"
+      />
     </main>
   </body>
 </html>
