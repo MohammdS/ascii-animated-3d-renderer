@@ -1,5 +1,5 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=12", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=13", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -15,13 +15,12 @@ template.innerHTML = `
       background: var(--haifa-ascii-background, #07111f);
       border-radius: var(--haifa-ascii-radius, 0.75rem);
       contain: content;
-      perspective: 900px;
+      perspective: 850px;
     }
 
-    canvas {
-      display: block;
+    .scene {
+      position: relative;
       width: 100%;
-      max-width: 100%;
       height: 100%;
       animation: haifa-ascii-spin var(--haifa-ascii-duration, 5.5s) linear infinite;
       backface-visibility: visible;
@@ -30,13 +29,24 @@ template.innerHTML = `
       will-change: transform;
     }
 
-    :host([paused]) canvas {
+    canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      opacity: var(--layer-opacity, 1);
+      transform: translateZ(var(--layer-z));
+      transform-style: preserve-3d;
+    }
+
+    :host([paused]) .scene {
       animation: none;
       transform: rotateY(0deg);
     }
 
     @media (prefers-reduced-motion: reduce) {
-      :host(:not([motion="always"])) canvas {
+      :host(:not([motion="always"])) .scene {
         animation: none;
         transform: rotateY(0deg);
       }
@@ -64,7 +74,15 @@ template.innerHTML = `
       text-align: center;
     }
   </style>
-  <canvas part="canvas" role="img"></canvas>
+  <div class="scene">
+    <canvas aria-hidden="true" style="--layer-z: -42px; --layer-opacity: 0.28"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: -28px; --layer-opacity: 0.36"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: -14px; --layer-opacity: 0.48"></canvas>
+    <canvas part="canvas" role="img" style="--layer-z: 0px; --layer-opacity: 1"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: 14px; --layer-opacity: 0.52"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: 28px; --layer-opacity: 0.4"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: 42px; --layer-opacity: 0.3"></canvas>
+  </div>
   <div class="message" hidden></div>
 `;
 
@@ -96,9 +114,10 @@ class HaifaLogoAscii extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" }).append(template.content.cloneNode(true));
-    this.canvas = this.shadowRoot.querySelector("canvas");
+    this.canvases = [...this.shadowRoot.querySelectorAll("canvas")];
+    this.canvas = this.shadowRoot.querySelector('[part="canvas"]');
     this.message = this.shadowRoot.querySelector(".message");
-    this.context = this.canvas.getContext("2d", { alpha: false });
+    this.contexts = this.canvases.map((canvas) => canvas.getContext("2d"));
     this.points = null;
     this.startTime = performance.now();
     this.lastFrame = 0;
@@ -127,7 +146,7 @@ class HaifaLogoAscii extends HTMLElement {
     const requestId = Symbol();
     this.activeRequest = requestId;
     this.points = null;
-    this.canvas.hidden = false;
+    for (const canvas of this.canvases) canvas.hidden = false;
     this.message.hidden = true;
 
     loadPoints(url)
@@ -186,8 +205,10 @@ class HaifaLogoAscii extends HTMLElement {
     const width = Math.max(1, Math.round(rect.width * ratio));
     const height = Math.max(1, Math.round(rect.height * ratio));
     if (this.canvas.width !== width || this.canvas.height !== height) {
-      this.canvas.width = width;
-      this.canvas.height = height;
+      for (const canvas of this.canvases) {
+        canvas.width = width;
+        canvas.height = height;
+      }
       this.draw(performance.now());
     }
   }
@@ -210,7 +231,6 @@ class HaifaLogoAscii extends HTMLElement {
   draw(now) {
     if (!this.points || !this.canvas.width || !this.canvas.height) return;
 
-    const ctx = this.context;
     const width = this.canvas.width;
     const height = this.canvas.height;
     const columns = Math.max(60, Math.min(132, Math.floor(width / 10)));
@@ -261,24 +281,30 @@ class HaifaLogoAscii extends HTMLElement {
       colors[index] = (rr << 16) | (gg << 8) | bb;
     }
 
-    ctx.fillStyle = getComputedStyle(this).getPropertyValue("--haifa-ascii-background").trim() || "#07111f";
-    ctx.fillRect(0, 0, width, height);
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `${Math.max(8, cellHeight * 0.88)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
+    for (let layer = 0; layer < this.contexts.length; layer += 1) {
+      const ctx = this.contexts[layer];
+      const depthShade = 1 - Math.abs(layer - 3) * 0.1;
+      ctx.clearRect(0, 0, width, height);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `${Math.max(8, cellHeight * 0.88)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
 
-    for (let index = 0; index < count; index += 1) {
-      if (!chars[index]) continue;
-      const color = colors[index];
-      ctx.fillStyle = `rgb(${color >> 16}, ${(color >> 8) & 255}, ${color & 255})`;
-      const x = (index % columns + 0.5) * cellWidth;
-      const y = (Math.floor(index / columns) + 0.5) * cellHeight;
-      ctx.fillText(RAMP[chars[index]], x, y);
+      for (let index = 0; index < count; index += 1) {
+        if (!chars[index]) continue;
+        const color = colors[index];
+        const rr = Math.max(0, Math.min(255, Math.trunc((color >> 16) * depthShade)));
+        const gg = Math.max(0, Math.min(255, Math.trunc(((color >> 8) & 255) * depthShade)));
+        const bb = Math.max(0, Math.min(255, Math.trunc((color & 255) * depthShade)));
+        ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
+        const x = (index % columns + 0.5) * cellWidth;
+        const y = (Math.floor(index / columns) + 0.5) * cellHeight;
+        ctx.fillText(RAMP[chars[index]], x, y);
+      }
     }
   }
 
   showError(error) {
-    this.canvas.hidden = true;
+    for (const canvas of this.canvases) canvas.hidden = true;
     this.message.hidden = false;
     this.message.textContent = "The Haifa logo artwork could not be loaded.";
     console.error(error);
