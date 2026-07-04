@@ -43,11 +43,11 @@ This is the editor/viewer page. I use it to load a logo point-cloud JSON file, v
 
 ![Point-cloud editor](./assets/cloud-points-editor.png)
 
-## How I Use The Point-Cloud Editor
+## How to Use The Point-Cloud Editor
 
 The point-cloud editor is a browser tool for editing the JSON data files that already live in the repo folder.
 
-When I open `point-cloud-editor.html`, the **Logo** dropdown loads one of the existing point-cloud files:
+When open `point-cloud-editor.html`, the **Logo** dropdown loads one of the existing point-cloud files:
 
 - `haifa-logo-points.json` for the University of Haifa - old logo
 - `second-logo-points.json` for the University of Haifa - new logo
@@ -66,12 +66,12 @@ The main controls are:
 - **Reset**: returns to the currently loaded JSON data.
 - **Export JSON**: downloads the edited point-cloud data as a new `.json` file.
 
-The editor does not automatically overwrite files in the repository. After exporting, I manually replace the matching JSON file in the repo folder with the downloaded file:
+The editor does not automatically overwrite files in the repository. After exporting, manually replace the matching JSON file in the repo folder with the downloaded file:
 
-- replace `haifa-logo-points.json` if I edited the old logo
-- replace `second-logo-points.json` if I edited the new logo
+- replace `haifa-logo-points.json` if edited the old logo
+- replace `second-logo-points.json` if edited the new logo
 
-After replacing the file, I can refresh `index.html` through the local server to preview the updated ASCII logo.
+After replacing the file, we can refresh `index.html` through the local server to preview the updated ASCII logo.
 
 ## What Each File Does
 
