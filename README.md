@@ -7,7 +7,7 @@ The project currently includes two logo previews:
 - University of Haifa - old logo
 - University of Haifa - new logo
 
-It also includes a small point-cloud editor/viewer so I can inspect, paint, erase, and export the JSON point data used by the previews.
+It also includes a small point-cloud editor/viewer so it allow to inspect, paint, erase, and export the JSON point data used by the previews.
 
 ## How To Run
 
