@@ -1,7 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=22", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=23", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -58,10 +58,10 @@ function expandPoints(points) {
     const [x, y, r, g, b] = point;
     const qx = Math.round(x / 0.16);
     const qy = Math.round(y / 0.16);
-    const surface = 0.26 * Math.sin(x * 1.15) + 0.12 * Math.cos(y * 2);
+    const surface = 0.12 * Math.sin(x * 1.15) + 0.06 * Math.cos(y * 2);
 
-    result.push([x, y, surface + 1.05, r, g, b]);
-    if (index % 2 === 0) result.push([x, y, surface - 1.05, r, g, b]);
+    result.push([x, y, surface + 0.42, r, g, b]);
+    if (index % 3 === 0) result.push([x, y, surface - 0.42, r, g, b]);
 
     const isRim =
       !quantized.has(`${qx - 1},${qy}`) ||
@@ -70,7 +70,7 @@ function expandPoints(points) {
       !quantized.has(`${qx},${qy + 1}`);
 
     if (!isRim) continue;
-    for (const depth of [-0.7, -0.35, 0, 0.35, 0.7]) {
+    for (const depth of [-0.28, 0, 0.28]) {
       result.push([x, y, surface + depth, r, g, b]);
     }
   }
@@ -223,7 +223,7 @@ class HaifaLogoAscii extends HTMLElement {
       const z1 = y * sinX + z * cosX;
       const x2 = x * cosY + z1 * sinY;
       const z2 = -x * sinY + z1 * cosY;
-      const perspective = 1 / (1 + Math.max(-0.65, Math.min(0.85, z2 * 0.08)));
+      const perspective = 1 / (1 + Math.max(-0.35, Math.min(0.45, z2 * 0.05)));
       const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18 * perspective);
       const sy = Math.trunc(ROWS / 2 - y1 * scale * 0.92 * perspective);
       if (sx < 0 || sx >= COLUMNS || sy < 0 || sy >= ROWS) continue;
@@ -232,9 +232,9 @@ class HaifaLogoAscii extends HTMLElement {
       if (z2 <= zBuffer[index]) continue;
       zBuffer[index] = z2;
 
-      const depthLight = Math.max(0, Math.min(1, (z2 + 5.4) / 10.8));
-      const edgeLight = Math.abs(sinY) * Math.min(0.18, Math.abs(z) * 0.08);
-      const light = Math.max(0, Math.min(1, 0.45 + 0.42 * depthLight + edgeLight));
+      const depthLight = Math.max(0, Math.min(1, (z2 + 3.2) / 6.4));
+      const edgeLight = Math.abs(sinY) * Math.min(0.08, Math.abs(z) * 0.05);
+      const light = Math.max(0, Math.min(1, 0.5 + 0.32 * depthLight + edgeLight));
       chars[index] = Math.min(RAMP.length - 1, Math.trunc(light * (RAMP.length - 1)));
       const shade = 0.7 + 0.38 * light;
       const rr = Math.max(0, Math.min(255, Math.trunc(r * shade)));
