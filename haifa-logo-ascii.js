@@ -1,7 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=23", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=24", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -211,21 +211,15 @@ class HaifaLogoAscii extends HTMLElement {
     const angleY = this.frameIndex * 0.075 * Math.abs(rotationSpeed);
     this.dataset.frame = String(this.frameIndex);
 
-    const angleX = -0.18;
-    const cosX = Math.cos(angleX);
-    const sinX = Math.sin(angleX);
     const cosY = Math.cos(angleY);
     const sinY = Math.sin(angleY);
     const scale = Math.min(COLUMNS / 10.8, ROWS / 5.6);
 
     for (const [x, y, z, r, g, b] of this.points) {
-      const y1 = y * cosX - z * sinX;
-      const z1 = y * sinX + z * cosX;
-      const x2 = x * cosY + z1 * sinY;
-      const z2 = -x * sinY + z1 * cosY;
-      const perspective = 1 / (1 + Math.max(-0.35, Math.min(0.45, z2 * 0.05)));
-      const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18 * perspective);
-      const sy = Math.trunc(ROWS / 2 - y1 * scale * 0.92 * perspective);
+      const x2 = x * cosY + z * sinY;
+      const z2 = -x * sinY + z * cosY;
+      const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18);
+      const sy = Math.trunc(ROWS / 2 - y * scale * 0.92);
       if (sx < 0 || sx >= COLUMNS || sy < 0 || sy >= ROWS) continue;
 
       const index = sy * COLUMNS + sx;
