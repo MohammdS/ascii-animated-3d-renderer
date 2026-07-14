@@ -1,35 +1,81 @@
 # ASCII Animated 3D Renderer
 
-A browser-based renderer and editor for turning colored 2D point-cloud data into animated 3D ASCII art.
+Turn colored 2D point-cloud data into animated 3D ASCII art directly in the browser. The project combines a reusable Web Component with an interactive editor for loading, painting, previewing, and exporting point data.
 
-**Live demo:** https://mohammds.github.io/ascii-animated-3d-renderer/
+**[View the live renderer](https://mohammds.github.io/ascii-animated-3d-renderer/)** · **[Open the point-cloud editor](https://mohammds.github.io/ascii-animated-3d-renderer/editor.html)**
 
-The project started as a University of Haifa logo experiment and now exposes the rendering logic as a reusable Web Component. An abstract dataset demonstrates arbitrary coordinate scaling, while the original logo datasets remain as included examples. The renderer and editor accept any compatible JSON point set and calculate its bounds automatically.
+[![Animated 3D ASCII point-cloud examples](./assets/logo-preview.gif)](https://mohammds.github.io/ascii-animated-3d-renderer/)
 
-![Animated point-cloud examples](./assets/logo-preview.gif)
+## Explore the project
 
-## Features
+| Demo | What it shows |
+| --- | --- |
+| [Animated renderer](https://mohammds.github.io/ascii-animated-3d-renderer/) | Automatic coordinate normalization, shallow 3D extrusion, rotation, colored ASCII lighting, and multiple datasets rendered by the same component. |
+| [Point-cloud editor](https://mohammds.github.io/ascii-animated-3d-renderer/editor.html) | JSON upload, included presets, point and ASCII views, painting, erasing, undo/redo, view fitting, background selection, and JSON export. |
+| [Abstract dataset](./examples/abstract-diamond.json) | A small generic example using coordinates from `-40` to `40`. |
+| [University of Haifa datasets](./examples/) | The original artwork that inspired the project, now used as example data for the generalized renderer. |
 
-- Reusable `<ascii-point-cloud>` Web Component
-- Automatic centering and scaling for arbitrary coordinate ranges
-- Configurable speed, depth, FPS, grid dimensions, motion behavior, and character ramp
-- Colored ASCII output with generated depth, Y-axis rotation, lighting, and z-buffer visibility
-- Browser editor with JSON upload, example presets, light/dark backgrounds, point and ASCII previews, paint/erase tools, undo/redo, fit-to-data, reset, and export
-- No framework, build step, server component, or runtime dependency
-- Backward-compatible redirects for the original editor URL and component module
+## What the project demonstrates
 
-## Run locally
+- A reusable `<ascii-point-cloud>` custom element built with native Web Components
+- Conversion of colored 2D coordinates into a shallow animated 3D point cloud
+- Y-axis rotation, orthographic projection, z-buffer visibility, depth lighting, and configurable ASCII shading
+- Automatic centering and scaling for datasets that use different coordinate ranges
+- A browser-based Canvas editor for creating and modifying compatible point data
+- Responsive rendering, reduced-motion support, error handling, and accessible image labels
+- No framework, build step, backend, or runtime dependency
 
-The pages load JavaScript modules and JSON files, so serve the folder over HTTP:
+The project began as an experiment for rendering University of Haifa logo data. Its rendering logic was then generalized so the same component and editor can accept any compatible colored point set.
 
-```bash
-python -m http.server 8000
+## Rendering pipeline
+
+```mermaid
+flowchart LR
+    A["JSON points<br/>x, y, r, g, b"] --> B["Validate and<br/>normalize bounds"]
+    B --> C["Generate shallow<br/>front, back, and rim depth"]
+    C --> D["Rotate around<br/>the Y axis"]
+    D --> E["Project into<br/>an ASCII grid"]
+    E --> F["Resolve visibility<br/>with a z-buffer"]
+    F --> G["Apply lighting,<br/>characters, and color"]
+    G --> H["Render the<br/>animated frame"]
 ```
 
-Then open:
+Each source point has the form `[x, y, r, g, b]`. The renderer calculates the dataset bounds, centers the coordinates, and normalizes their scale while preserving the original aspect ratio.
 
-- Preview: http://127.0.0.1:8000/
-- Editor: http://127.0.0.1:8000/editor.html
+To create the 3D effect, the implementation generates a shallow front surface, a partial back surface, and intermediate points around detected rim cells. Every frame rotates those points around the Y axis and projects them into a fixed character grid. A z-buffer keeps the nearest point in each grid cell, while calculated depth controls the ASCII character and RGB brightness.
+
+## Technical implementation
+
+### Web Component renderer
+
+The renderer is implemented in [`src/ascii-point-cloud.js`](./src/ascii-point-cloud.js) as a native custom element with an open Shadow DOM.
+
+- `ResizeObserver` adjusts the character size when the component changes dimensions.
+- Point data is fetched from the `src` URL, validated, normalized, and cached by source and depth.
+- Typed arrays store character indices, colors, and z-buffer values for each frame.
+- The final colored frame is rendered into a semantic `<pre role="img">` element.
+- `prefers-reduced-motion`, `paused`, and `motion` control animation behavior.
+- Attribute changes can reload the artwork or restart rendering without recreating the component.
+
+The original `<haifa-logo-ascii>` element remains available through [`src/haifa-logo-ascii.js`](./src/haifa-logo-ascii.js) as a backward-compatible wrapper.
+
+### Point-cloud editor
+
+The editor uses native Canvas APIs and is implemented in [`src/point-cloud-editor.js`](./src/point-cloud-editor.js).
+
+- Source coordinates are converted through a reversible model-to-canvas transform.
+- The view automatically fits the loaded dataset while retaining its original coordinate scale for export.
+- High-DPI canvases are capped at a device-pixel ratio of `2` for clarity and predictable performance.
+- Point mode draws the original RGB coordinates directly.
+- ASCII mode builds an editable character-grid preview from the same point data.
+- Each completed stroke becomes an undoable history entry.
+- Imported files remain local to the browser, and export creates a new JSON download without overwriting the source.
+
+### Data validation and rendering safety
+
+Both tools require a non-empty JSON array. Every point must contain exactly five finite numbers. The editor rejects RGB channels outside `0-255`, while the renderer clamps channels into that range before drawing.
+
+The renderer also tracks asynchronous requests so an older response cannot replace a more recently selected dataset.
 
 ## Use the renderer
 
@@ -49,7 +95,7 @@ Import the module and provide a JSON source:
 ></ascii-point-cloud>
 ```
 
-### Attributes
+### Component attributes
 
 | Attribute | Default | Purpose |
 | --- | --- | --- |
@@ -87,32 +133,35 @@ Each JSON file contains a non-empty array of points:
 
 Each point is `[x, y, r, g, b]`:
 
-- `x`, `y`: finite 2D coordinates in any consistent scale
-- `r`, `g`, `b`: color channels between 0 and 255
+- `x`, `y`: finite coordinates in any consistent 2D scale
+- `r`, `g`, `b`: RGB color channels between `0` and `255`
 
-The renderer centers and normalizes the input while preserving its aspect ratio. The editor fits the canvas directly to the source coordinates so exported files retain their original scale.
+The renderer normalizes coordinates for display. The editor retains the source coordinate system so exported files remain compatible with the original dataset.
 
-## Editor
+## Use the editor
 
-Open `editor.html` to:
+Open [`editor.html`](./editor.html) or use the [hosted editor](https://mohammds.github.io/ascii-animated-3d-renderer/editor.html):
 
 1. Select an included example or upload a local JSON file.
-2. View the raw points or their ASCII projection.
+2. Switch between raw point and ASCII views.
 3. Choose a background, point color, brush size, and add/remove tool.
 4. Paint, erase, undo, redo, reset, or fit the view.
-5. Export the edited point data as JSON.
+5. Export the edited point data as a new JSON file.
 
-Export never overwrites the original file.
+Right-click temporarily activates the remove tool regardless of the selected mode.
 
-## How rendering works
+## Run locally
 
-1. Validate and normalize the colored 2D points.
-2. Build a shallow front and back surface, then connect rim points across the side wall.
-3. Rotate each point around the Y axis.
-4. Orthographically project the result into an ASCII grid.
-5. Use a z-buffer to keep the nearest point in each cell.
-6. Map lighting to a configurable ASCII character ramp.
-7. Render colored characters into a `<pre>` element.
+The project loads JavaScript modules and JSON files, so serve the repository over HTTP:
+
+```bash
+python -m http.server 8000
+```
+
+Then open:
+
+- Renderer: http://127.0.0.1:8000/
+- Editor: http://127.0.0.1:8000/editor.html
 
 ## Project structure
 
@@ -120,9 +169,11 @@ Export never overwrites the original file.
 ascii-animated-3d-renderer/
 |-- index.html
 |-- editor.html
+|-- point-cloud-editor.html
 |-- README.md
 |-- src/
 |   |-- ascii-point-cloud.js
+|   |-- haifa-logo-ascii.js
 |   `-- point-cloud-editor.js
 |-- styles/
 |   `-- point-cloud-editor.css
@@ -135,4 +186,6 @@ ascii-animated-3d-renderer/
     `-- cloud-points-editor.png
 ```
 
-The project uses native HTML, CSS, JavaScript, Canvas, and Web Components.
+## Built with
+
+Native HTML, CSS, JavaScript, Canvas, Web Components, Shadow DOM, typed arrays, and GitHub Pages.
