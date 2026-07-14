@@ -1,8 +1,8 @@
-# ASCII Point Cloud Studio
+# ASCII Animated 3D Renderer
 
 A browser-based renderer and editor for turning colored 2D point-cloud data into animated 3D ASCII art.
 
-**Live demo:** https://mohammds.github.io/ascii-point-cloud-studio/
+**Live demo:** https://mohammds.github.io/ascii-animated-3d-renderer/
 
 The project started as a University of Haifa logo experiment and now exposes the rendering logic as a reusable Web Component. An abstract dataset demonstrates arbitrary coordinate scaling, while the original logo datasets remain as included examples. The renderer and editor accept any compatible JSON point set and calculate its bounds automatically.
 
@@ -117,7 +117,7 @@ Export never overwrites the original file.
 ## Project structure
 
 ```text
-ascii-point-cloud-studio/
+ascii-animated-3d-renderer/
 |-- index.html
 |-- editor.html
 |-- README.md
