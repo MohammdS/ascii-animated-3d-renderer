@@ -1,23 +1,26 @@
-# 3D ASCII Logo Previews
+# ASCII Point Cloud Studio
 
-I made this as a small university computer graphics project. The idea is to take logo point-cloud data, give it a simple fake 3D depth, rotate it in JavaScript, and render it as colored ASCII art in the browser.
+A browser-based renderer and editor for turning colored 2D point-cloud data into animated 3D ASCII art.
 
-The project currently includes two logo previews:
+**Live demo:** https://mohammds.github.io/ascii-point-cloud-studio/
 
-- University of Haifa - old logo
-- University of Haifa - new logo
+The project started as a University of Haifa logo experiment and now exposes the rendering logic as a reusable Web Component. An abstract dataset demonstrates arbitrary coordinate scaling, while the original logo datasets remain as included examples. The renderer and editor accept any compatible JSON point set and calculate its bounds automatically.
 
-It also includes a small point-cloud editor/viewer so I can inspect, paint, erase, and export the JSON point data used by the previews.
+![Animated point-cloud examples](./assets/logo-preview.gif)
 
-## How To Run
+## Features
 
-This project should be opened through a local server, not by double-clicking `index.html`.
+- Reusable `<ascii-point-cloud>` Web Component
+- Automatic centering and scaling for arbitrary coordinate ranges
+- Configurable speed, depth, FPS, grid dimensions, motion behavior, and character ramp
+- Colored ASCII output with generated depth, Y-axis rotation, lighting, and z-buffer visibility
+- Browser editor with JSON upload, example presets, light/dark backgrounds, point and ASCII previews, paint/erase tools, undo/redo, fit-to-data, reset, and export
+- No framework, build step, server component, or runtime dependency
+- Backward-compatible redirects for the original editor URL and component module
 
-The reason is that the page loads JavaScript modules and JSON files with `fetch()`. Browsers often block those requests when the page is opened directly from `file://`.
+## Run locally
 
-Python is only used here to start a simple static file server. The rendering, animation, editor, and math logic are all implemented in HTML and JavaScript and run inside the browser.
-
-From the project folder, run:
+The pages load JavaScript modules and JSON files, so serve the folder over HTTP:
 
 ```bash
 python -m http.server 8000
@@ -25,234 +28,111 @@ python -m http.server 8000
 
 Then open:
 
-```text
-http://127.0.0.1:8000/index.html
+- Preview: http://127.0.0.1:8000/
+- Editor: http://127.0.0.1:8000/editor.html
+
+## Use the renderer
+
+Import the module and provide a JSON source:
+
+```html
+<script type="module" src="./src/ascii-point-cloud.js"></script>
+
+<ascii-point-cloud
+  src="./examples/university-of-haifa-old.json"
+  label="Animated ASCII point cloud"
+  speed="1"
+  depth="0.24"
+  fps="18"
+  columns="132"
+  rows="48"
+></ascii-point-cloud>
 ```
 
-## What Each Page Does
+### Attributes
 
-`index.html`
+| Attribute | Default | Purpose |
+| --- | --- | --- |
+| `src` | Required | URL of the point-cloud JSON file |
+| `label` | Generic label | Accessible description for the rendered artwork |
+| `speed` | `1` | Rotation speed and direction; negative values reverse it |
+| `depth` | `0.24` | Generated depth between `0.02` and `0.8` |
+| `fps` | `18` | Animation rate between 1 and 30 FPS |
+| `columns` | `132` | ASCII grid width between 30 and 240 |
+| `rows` | `48` | ASCII grid height between 16 and 100 |
+| `ramp` | Built-in ramp | Characters ordered from light to dense |
+| `paused` | Off | Presence of the attribute pauses animation |
+| `motion="always"` | Off | Animates even when reduced motion is enabled |
 
-This is the main preview page. It shows the two animated ASCII logo previews and links to the point-cloud editor.
+CSS custom properties control the host surface:
 
-![Animated logo previews](./assets/logo-preview.gif)
+```css
+ascii-point-cloud {
+  --ascii-cloud-background: #07111f;
+  --ascii-cloud-radius: 1rem;
+  --ascii-cloud-aspect: 3 / 1;
+}
+```
 
-`point-cloud-editor.html`
+## Point-data format
 
-This is the editor/viewer page. I use it to load a logo point-cloud JSON file, view the raw points, view an ASCII-style render, add points, remove points, undo/redo edits, reset, and export the edited JSON.
+Each JSON file contains a non-empty array of points:
 
-![Point-cloud editor](./assets/cloud-points-editor.png)
+```json
+[
+  [0.0, 0.0, 60, 181, 231],
+  [0.1, 0.2, 255, 255, 255]
+]
+```
 
-## How to Use The Point-Cloud Editor
+Each point is `[x, y, r, g, b]`:
 
-The point-cloud editor is a browser tool for editing the JSON data files that already live in the repo folder.
+- `x`, `y`: finite 2D coordinates in any consistent scale
+- `r`, `g`, `b`: color channels between 0 and 255
 
-When open `point-cloud-editor.html`, the **Logo** dropdown loads one of the existing point-cloud files from the `data/` folder:
+The renderer centers and normalizes the input while preserving its aspect ratio. The editor fits the canvas directly to the source coordinates so exported files retain their original scale.
 
-- `data/haifa-logo-points.json` for the University of Haifa - old logo
-- `data/second-logo-points.json` for the University of Haifa - new logo
+## Editor
 
-The editor loads those files with `fetch()`, draws the points on the canvas, and allow to inspect the logo as either raw cloud points or an ASCII-style render.
+Open `editor.html` to:
 
-The main controls are:
+1. Select an included example or upload a local JSON file.
+2. View the raw points or their ASCII projection.
+3. Choose a background, point color, brush size, and add/remove tool.
+4. Paint, erase, undo, redo, reset, or fit the view.
+5. Export the edited point data as JSON.
 
-- **Logo**: switches between the old logo JSON and the new logo JSON.
-- **Load JSON**: lets me inspect a local JSON file from my computer.
-- **View**: switches between point-cloud view and ASCII render view.
-- **Tool**: chooses whether I am adding points or removing points.
-- **Point color**: sets the RGB color for new points.
-- **Brush size**: controls how many points I add or remove at once.
-- **Undo / Redo**: steps backward or forward through edits.
-- **Reset**: returns to the currently loaded JSON data.
-- **Export JSON**: downloads the edited point-cloud data as a new `.json` file.
+Export never overwrites the original file.
 
-The editor does not automatically overwrite files in the repository. After exporting, manually replace the matching JSON file in the repo folder with the downloaded file:
+## How rendering works
 
-- replace `data/haifa-logo-points.json` if edited the old logo
-- replace `data/second-logo-points.json` if edited the new logo
+1. Validate and normalize the colored 2D points.
+2. Generate a shallow Z value from the configured depth.
+3. Rotate each point around the Y axis.
+4. Orthographically project the result into an ASCII grid.
+5. Use a z-buffer to keep the nearest point in each cell.
+6. Map lighting to a configurable ASCII character ramp.
+7. Render colored characters into a `<pre>` element.
 
-After replacing the file, refresh `index.html` through the local server to preview the updated ASCII logo.
-
-## What Each File Does
-
-The repo is organized like this:
+## Project structure
 
 ```text
-haifa-logo-ascii-3d/
+ascii-point-cloud-studio/
 |-- index.html
-|-- point-cloud-editor.html
+|-- editor.html
 |-- README.md
 |-- src/
-|   |-- haifa-logo-ascii.js
+|   |-- ascii-point-cloud.js
 |   `-- point-cloud-editor.js
 |-- styles/
 |   `-- point-cloud-editor.css
-|-- data/
-|   |-- haifa-logo-points.json
-|   `-- second-logo-points.json
+|-- examples/
+|   |-- abstract-diamond.json
+|   |-- university-of-haifa-old.json
+|   `-- university-of-haifa-new.json
 `-- assets/
     |-- logo-preview.gif
     `-- cloud-points-editor.png
 ```
 
-`src/haifa-logo-ascii.js`
-
-This is the main renderer. It defines the custom HTML element:
-
-```html
-<haifa-logo-ascii></haifa-logo-ascii>
-```
-
-It loads point data, adds shallow depth, spins the points around the Y axis, projects them into a 2D ASCII grid, colors the characters, and writes the final result into a `<pre>` element.
-
-`data/haifa-logo-points.json`
-
-This contains the point-cloud data for the University of Haifa - old logo.
-
-`data/second-logo-points.json`
-
-This contains the point-cloud data for the University of Haifa - new logo.
-
-Each point uses this format:
-
-```js
-[x, y, r, g, b]
-```
-
-Where:
-
-- `x` and `y` are the 2D point position
-- `r`, `g`, and `b` are the point color
-
-`src/point-cloud-editor.js`
-
-This powers the editor. It loads JSON point files, draws them on a canvas, lets me add/remove points, and exports updated JSON.
-
-`styles/point-cloud-editor.css`
-
-This styles the editor page.
-
-## Methodology
-
-My pipeline is:
-
-1. Start with a 2D colored point cloud.
-2. Add a shallow fake Z depth to the points.
-3. Rotate the points around the Y axis.
-4. Drop/project the rotated points onto a 2D ASCII grid.
-5. Use a z-buffer so the front-most point wins when multiple points land on the same cell.
-6. Convert brightness into ASCII characters.
-7. Render the final colored ASCII frame into a `<pre>`.
-8. Repeat the process on a timer to create animation.
-
-## Depth Logic
-
-The original JSON files are 2D, so I generate a small depth value in JavaScript.
-
-For each point, I calculate a soft surface offset:
-
-```js
-const surface = 0.12 * Math.sin(x * 1.15) + 0.06 * Math.cos(y * 2);
-```
-
-Then I add a front layer:
-
-```js
-z = surface + 0.42;
-```
-
-I also add a lighter back layer for every third point:
-
-```js
-z = surface - 0.42;
-```
-
-For rim points, I add a few short side-depth samples:
-
-```js
-[-0.28, 0, 0.28]
-```
-
-I kept this depth shallow because large depth made the logo look noisy and stretched.
-
-## Rotation Math
-
-I rotate only around the Y axis. I intentionally removed X-axis tilt so the logo stays upright.
-
-The angle is based on the frame number:
-
-```js
-const angleY = frameIndex * 0.052 * Math.abs(rotationSpeed);
-```
-
-For every point, I rotate `x` and `z`:
-
-```js
-const x2 = x * cosY + z * sinY;
-const z2 = -x * sinY + z * cosY;
-```
-
-This is the standard Y-axis rotation formula.
-
-## Projection Math
-
-For projection, I keep it simple and orthographic. That means I do not use perspective. I just drop the Z value for screen position:
-
-```js
-const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18);
-const sy = Math.trunc(ROWS / 2 - y * scale * 0.92);
-```
-
-So:
-
-- rotated `x2` controls horizontal screen position
-- original `y` controls vertical screen position
-- `z2` is not used for screen position
-- `z2` is still used for depth sorting and lighting
-
-## Z-Buffer
-
-When more than one point lands on the same ASCII cell, I keep only the point closest to the viewer.
-
-```js
-if (z2 <= zBuffer[index]) continue;
-zBuffer[index] = z2;
-```
-
-This is what makes the rotating logo feel more like a 3D object instead of a flat pile of points.
-
-## ASCII Shading
-
-I use a character ramp from light to dense:
-
-```js
-const RAMP = " .,:;irsXA253hMHGS#9B&@";
-```
-
-After calculating a light value, I choose a character from that ramp:
-
-```js
-chars[index] = Math.trunc(light * (RAMP.length - 1));
-```
-
-Then I color each character using the original point color, slightly shaded by depth.
-
-## Why I Used `<pre>`
-
-I originally tested rendering approaches with canvas and generated frames. The current preview renders into a `<pre>` because it makes the ASCII output real text-like content and keeps the final effect closer to the idea of ASCII art.
-
-Each frame is rebuilt as colored `<span>` elements inside the `<pre>`.
-
-## Notes
-
-This is not a full 3D engine. It is a small graphics experiment focused on:
-
-- point-cloud representation
-- simple depth generation
-- Y-axis rotation
-- orthographic projection
-- z-buffer visibility
-- ASCII shading
-- browser-based interaction
-
-That was the goal of the project: keep the math understandable, make the animation visible, and keep the data editable.
+The project uses native HTML, CSS, JavaScript, Canvas, and Web Components.

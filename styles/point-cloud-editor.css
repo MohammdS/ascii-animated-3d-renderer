@@ -6,11 +6,10 @@
 }
 
 * { box-sizing: border-box; }
-
 body { margin: 0; }
 
 main {
-  width: min(1180px, calc(100% - 2rem));
+  width: min(1220px, calc(100% - 2rem));
   margin: auto;
   padding: 2rem 0 3rem;
 }
@@ -24,12 +23,14 @@ header {
 }
 
 h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); }
-header p { margin: 0.4rem 0 0; }
+h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+header p { max-width: 720px; margin: 0.4rem 0 0; color: #526879; line-height: 1.55; }
 .eyebrow { color: #0b8fb7; font-weight: 750; text-transform: uppercase; letter-spacing: 0.1em; }
 a { color: #087fa3; font-weight: 700; }
 
 .toolbar,
-.workspace {
+.workspace,
+.help {
   border: 1px solid #d7e2e9;
   border-radius: 1rem;
   background: #fff;
@@ -40,7 +41,7 @@ a { color: #087fa3; font-weight: 700; }
   display: flex;
   flex-wrap: wrap;
   align-items: end;
-  gap: 1rem 1.4rem;
+  gap: 1rem 1.25rem;
   padding: 1rem;
   margin-bottom: 1rem;
 }
@@ -51,18 +52,13 @@ fieldset {
   gap: 0.4rem;
   margin: 0;
   color: #526879;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-fieldset {
-  grid-template-columns: auto auto;
-  border: 0;
-  padding: 0;
-}
-
+fieldset { grid-template-columns: auto auto; border: 0; padding: 0; }
 legend { margin-bottom: 0.35rem; }
 fieldset label { color: #183247; font-size: 0.9rem; text-transform: none; letter-spacing: 0; }
 
@@ -80,14 +76,7 @@ input[type="file"] {
 
 select { padding: 0 2rem 0 0.7rem; }
 input[type="color"] { width: 4rem; padding: 0.2rem; }
-input[type="file"] {
-  max-width: 14rem;
-  padding: 0.45rem;
-  color: #526879;
-  font-size: 0.8rem;
-  text-transform: none;
-  letter-spacing: 0;
-}
+input[type="file"] { max-width: 14rem; padding: 0.45rem; color: #526879; font-size: 0.8rem; text-transform: none; letter-spacing: 0; }
 button { padding: 0 0.9rem; font-weight: 700; cursor: pointer; }
 button:hover:not(:disabled) { border-color: #0b8fb7; }
 button:disabled { cursor: default; opacity: 0.45; }
@@ -107,9 +96,11 @@ canvas { display: block; width: 100%; height: min(62vh, 590px); cursor: crosshai
   color: #526879;
 }
 
-.help { color: #526879; line-height: 1.6; }
+.help { margin-top: 1rem; padding: 1rem; color: #526879; line-height: 1.6; box-shadow: none; }
+.help p { margin: 0.35rem 0; }
+.help code { color: #183247; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   header { display: block; }
   header a { display: inline-block; margin-top: 1rem; }
   .actions { width: 100%; margin-left: 0; }

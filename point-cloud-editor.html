@@ -3,87 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ASCII Logo Point Editor</title>
-    <link rel="stylesheet" href="./styles/point-cloud-editor.css" />
-    <script type="module" src="./src/point-cloud-editor.js?v=26"></script>
+    <meta http-equiv="refresh" content="0; url=./editor.html" />
+    <title>Editor moved - ASCII Point Cloud Studio</title>
   </head>
   <body>
-    <main>
-      <header>
-        <div>
-          <p class="eyebrow">Point-cloud tool</p>
-          <h1>ASCII logo editor</h1>
-          <p>Paint new points or remove existing ones, then export the updated JSON.</p>
-        </div>
-        <a href="./index.html">Back to previews</a>
-      </header>
-
-      <section class="toolbar" aria-label="Editor controls">
-        <label>
-          Logo
-          <select id="logo">
-            <option value="./data/haifa-logo-points.json?v=26">University of Haifa - old logo</option>
-            <option value="./data/second-logo-points.json?v=26">University of Haifa - new logo</option>
-          </select>
-        </label>
-
-        <label class="file-picker">
-          Load JSON
-          <input id="json-file" type="file" accept=".json,application/json" />
-        </label>
-
-        <label>
-          View
-          <select id="view-mode">
-            <option value="points">Cloud points</option>
-            <option value="ascii">ASCII render</option>
-          </select>
-        </label>
-
-        <fieldset>
-          <legend>Tool</legend>
-          <label><input type="radio" name="tool" value="add" checked /> Add</label>
-          <label><input type="radio" name="tool" value="remove" /> Remove</label>
-        </fieldset>
-
-        <label>
-          Point color
-          <input id="color" type="color" value="#3cb5e7" />
-        </label>
-
-        <label>
-          Brush size
-          <select id="brush-size">
-            <option value="1">1 point</option>
-            <option value="3">3 x 3</option>
-            <option value="5">5 x 5</option>
-          </select>
-        </label>
-
-        <div class="actions">
-          <button id="undo" type="button" disabled>Undo</button>
-          <button id="redo" type="button" disabled>Redo</button>
-          <button id="reset" type="button">Reset</button>
-          <button id="download" class="primary" type="button">Export JSON</button>
-        </div>
-      </section>
-
-      <section class="workspace">
-        <div class="canvas-wrap">
-          <canvas id="editor" aria-label="Editable point cloud"></canvas>
-        </div>
-        <footer>
-          <span id="status">Loading...</span>
-          <span><strong id="count">0</strong> points</span>
-        </footer>
-      </section>
-
-      <p class="help">
-        Drag to paint or erase. In <strong>ASCII Render</strong> view, edits snap to rendered character cells.
-        Right-click temporarily removes points regardless of the selected tool.
-        Use <strong>Load JSON</strong> to inspect a local point-data file. Exported JSON can replace the
-        corresponding point-data file in this folder.
-      </p>
-    </main>
+    <p>The editor moved to <a href="./editor.html">editor.html</a>.</p>
   </body>
 </html>

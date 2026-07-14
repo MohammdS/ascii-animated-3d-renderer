@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Edit, preview, and export colored point-cloud JSON data in the browser." />
+    <title>Point Cloud Editor - ASCII Point Cloud Studio</title>
+    <link rel="stylesheet" href="./styles/point-cloud-editor.css" />
+    <script type="module" src="./src/point-cloud-editor.js?v=1"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">ASCII Point Cloud Studio</p>
+          <h1>Point-cloud editor</h1>
+          <p>Load any compatible JSON file, paint or erase points, preview the ASCII projection, and export the result.</p>
+        </div>
+        <a href="./index.html">Back to previews</a>
+      </header>
+
+      <section class="toolbar" aria-label="Editor controls">
+        <label>
+          Example preset
+          <select id="preset">
+            <option value="./examples/abstract-diamond.json?v=1" data-background="dark">Abstract rainbow diamond</option>
+            <option value="./examples/university-of-haifa-old.json?v=1" data-background="dark">University of Haifa - classic</option>
+            <option value="./examples/university-of-haifa-new.json?v=1" data-background="light">University of Haifa - current</option>
+          </select>
+        </label>
+
+        <label class="file-picker">
+          Load JSON
+          <input id="json-file" type="file" accept=".json,application/json" />
+        </label>
+
+        <label>
+          View
+          <select id="view-mode">
+            <option value="points">Cloud points</option>
+            <option value="ascii">ASCII render</option>
+          </select>
+        </label>
+
+        <label>
+          Background
+          <select id="background">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+
+        <fieldset>
+          <legend>Tool</legend>
+          <label><input type="radio" name="tool" value="add" checked /> Add</label>
+          <label><input type="radio" name="tool" value="remove" /> Remove</label>
+        </fieldset>
+
+        <label>
+          Point color
+          <input id="color" type="color" value="#3cb5e7" />
+        </label>
+
+        <label>
+          Brush size
+          <select id="brush-size">
+            <option value="1">1 point</option>
+            <option value="3">3 x 3</option>
+            <option value="5">5 x 5</option>
+          </select>
+        </label>
+
+        <div class="actions">
+          <button id="fit" type="button">Fit view</button>
+          <button id="undo" type="button" disabled>Undo</button>
+          <button id="redo" type="button" disabled>Redo</button>
+          <button id="reset" type="button">Reset</button>
+          <button id="download" class="primary" type="button">Export JSON</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="canvas-wrap">
+          <canvas id="editor" aria-label="Editable point cloud"></canvas>
+        </div>
+        <footer>
+          <span id="status">Loading...</span>
+          <span><strong id="count">0</strong> points</span>
+        </footer>
+      </section>
+
+      <section class="help">
+        <h2>JSON format</h2>
+        <p>Use a non-empty array of <code>[x, y, r, g, b]</code> points. Coordinates can use any scale; the editor fits the view automatically. RGB values must be between 0 and 255.</p>
+        <p>Drag to paint or erase. Right-click temporarily removes points regardless of the selected tool. Export downloads a new JSON file and never overwrites the source.</p>
+      </section>
+    </main>
+  </body>
+</html>

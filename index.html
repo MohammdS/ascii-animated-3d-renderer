@@ -3,44 +3,115 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>3D ASCII Logo Components</title>
+    <meta name="description" content="Render and edit colored point-cloud data as animated 3D ASCII art in the browser." />
+    <title>ASCII Point Cloud Studio</title>
     <style>
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        padding: clamp(1rem, 5vw, 4rem);
-        background: #edf3f7;
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
         color: #183247;
-        font-family: system-ui, sans-serif;
+        background: #edf3f7;
       }
-      main { width: min(1100px, 100%); margin: auto; }
-      h1 { margin: 0 0 2rem; }
-      h2 { margin: 2rem 0 0.75rem; }
-      .tools { margin: -1rem 0 2rem; }
-      .tools a { color: #087fa3; font-weight: 700; }
-      haifa-logo-ascii { box-shadow: 0 1rem 3rem rgb(24 50 71 / 16%); }
-      .white { --haifa-ascii-background: #fff; }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      main { width: min(1120px, calc(100% - 2rem)); margin: auto; padding: 4rem 0; }
+      h1, h2, p { margin-top: 0; }
+      h1 { max-width: 760px; margin-bottom: 1rem; font-size: clamp(2.7rem, 8vw, 5.8rem); line-height: 0.95; letter-spacing: -0.055em; }
+      h2 { margin-bottom: 0.65rem; font-size: clamp(1.4rem, 3vw, 2rem); }
+      p { color: #526879; line-height: 1.65; }
+      a { color: inherit; }
+      .eyebrow { color: #087fa3; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+      .intro { max-width: 700px; font-size: 1.15rem; }
+      .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 2rem 0 4rem; }
+      .button { display: inline-flex; min-height: 2.8rem; align-items: center; padding: 0 1rem; border: 1px solid #0a7696; border-radius: 0.7rem; color: #0a6682; font-weight: 750; text-decoration: none; }
+      .button.primary { background: #087fa3; color: #fff; }
+      .section-heading { max-width: 680px; margin-bottom: 1.5rem; }
+      .examples { display: grid; gap: 1.25rem; }
+      .card { padding: 1rem; border: 1px solid #d7e2e9; border-radius: 1.2rem; background: #fff; box-shadow: 0 1rem 3rem rgb(24 50 71 / 10%); }
+      .card h2 { margin: 0.35rem 0 1rem; }
+      ascii-point-cloud { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%); }
+      .light-cloud {
+        --ascii-cloud-background: #fff;
+        --ascii-cloud-message: #183247;
+        box-shadow: inset 0 0 0 1px #d7e2e9;
+      }
+      .usage { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.25rem; margin-top: 4rem; }
+      .panel { padding: 1.4rem; border-radius: 1rem; background: #183247; color: #edf7fb; }
+      .panel p { color: #bdd0db; }
+      pre { overflow-x: auto; padding: 1rem; border-radius: 0.7rem; background: #0e2231; color: #d9f5ff; line-height: 1.55; }
+      code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+      footer { margin-top: 4rem; color: #6c7f8d; }
+      @media (max-width: 760px) {
+        main { padding: 2.5rem 0; }
+        .usage { grid-template-columns: 1fr; }
+      }
     </style>
-    <script type="module" src="./src/haifa-logo-ascii.js?v=26"></script>
+    <script type="module" src="./src/ascii-point-cloud.js?v=1"></script>
   </head>
   <body>
     <main>
-      <h1>3D ASCII logo components</h1>
-      <p class="tools"><a href="./point-cloud-editor.html">Open point-cloud editor</a></p>
+      <p class="eyebrow">Browser graphics experiment</p>
+      <h1>ASCII Point Cloud Studio</h1>
+      <p class="intro">
+        Turn colored point data into animated 3D ASCII art. Load any compatible JSON file, preview it with the reusable web component, or edit and export the points in the browser.
+      </p>
+      <div class="actions">
+        <a class="button primary" href="./editor.html">Open the editor</a>
+        <a class="button" href="https://github.com/MohammdS/ascii-point-cloud-studio">View source</a>
+      </div>
 
-      <h2>University of Haifa - old logo</h2>
-      <haifa-logo-ascii
-        label="Animated 3D ASCII art of the University of Haifa old logo"
-        motion="always"
-      ></haifa-logo-ascii>
+      <section aria-labelledby="examples-title">
+        <div class="section-heading">
+          <p class="eyebrow">Included examples</p>
+          <h2 id="examples-title">One renderer, different point sets</h2>
+          <p>The University of Haifa artwork that started the project now serves as example data for the generic renderer.</p>
+        </div>
+        <div class="examples">
+          <article class="card">
+            <h2>Abstract diamond - coordinates from -40 to 40</h2>
+            <ascii-point-cloud
+              src="./examples/abstract-diamond.json?v=1"
+              label="Animated 3D ASCII point cloud of an abstract rainbow diamond"
+              motion="always"
+              depth="0.35"
+            ></ascii-point-cloud>
+          </article>
+          <article class="card">
+            <h2>University of Haifa - classic mark</h2>
+            <ascii-point-cloud
+              src="./examples/university-of-haifa-old.json?v=1"
+              label="Animated 3D ASCII point cloud of the classic University of Haifa mark"
+              motion="always"
+            ></ascii-point-cloud>
+          </article>
+        </div>
+      </section>
 
-      <h2>University of Haifa - new logo</h2>
-      <haifa-logo-ascii
-        class="white"
-        src="./data/second-logo-points.json?v=26"
-        label="Animated 3D ASCII art of the University of Haifa new logo"
-        motion="always"
-      ></haifa-logo-ascii>
+      <section class="usage" aria-label="Component usage and data format">
+        <div class="panel">
+          <h2>Use the component</h2>
+          <p>Import one module and point the element at any compatible JSON file.</p>
+          <pre><code>&lt;script type="module"
+  src="./src/ascii-point-cloud.js"&gt;
+&lt;/script&gt;
+
+&lt;ascii-point-cloud
+  src="./examples/points.json"
+  speed="1"
+  depth="0.24"&gt;
+&lt;/ascii-point-cloud&gt;</code></pre>
+        </div>
+        <div class="panel">
+          <h2>Point format</h2>
+          <p>Each entry contains a 2D position followed by RGB color channels. Bounds are calculated automatically.</p>
+          <pre><code>[
+  [x, y, r, g, b],
+  [x, y, r, g, b]
+]</code></pre>
+        </div>
+      </section>
+
+      <footer>Built with native HTML, CSS, JavaScript, Canvas, and Web Components.</footer>
     </main>
   </body>
 </html>
