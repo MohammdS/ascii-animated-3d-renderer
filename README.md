@@ -34,9 +34,18 @@ http://127.0.0.1:8000/index.html
 
 `index.html`
 
-This is the main preview page. It shows the two animated ASCII logo previews and links to the point-cloud editor.
+This is the main preview page. It shows the two animated ASCII logo previews, a sphere example, interactive playback controls, live rendering statistics, and a link to the point-cloud editor.
 
 ![Animated logo previews](./assets/logo-preview.gif)
+
+Each preview has:
+
+- **Play / Pause**: stops or resumes that preview without affecting the others.
+- **Speed**: changes the Y-axis rotation speed from `0.1x` to `3.0x`.
+- **FPS**: the renderer's measured frames per second.
+- **Frame time**: how long the most recent ASCII frame took to build.
+- **3D points**: the number of source points processed per frame.
+- **Visible cells**: the number of ASCII cells that survived projection and depth testing.
 
 `point-cloud-editor.html`
 
@@ -86,6 +95,7 @@ haifa-logo-ascii-3d/
 |-- README.md
 |-- src/
 |   |-- haifa-logo-ascii.js
+|   |-- logo-demo-controls.js
 |   `-- point-cloud-editor.js
 |-- styles/
 |   `-- point-cloud-editor.css
@@ -109,6 +119,12 @@ This is the main renderer. It defines the custom HTML element:
 ```
 
 It loads true 3D point data, spins the points around the Y axis, projects them into a 2D ASCII grid, colors the characters, and writes the final result into a `<pre>` element.
+
+After drawing, it emits a `renderstats` event with FPS, frame time, source-point count, visible-cell count, frame number, and playback state.
+
+`src/logo-demo-controls.js`
+
+This connects each preview's Play/Pause button and speed slider to its renderer attributes, then displays the live data from `renderstats`.
 
 `data/haifa-logo-points.json`
 

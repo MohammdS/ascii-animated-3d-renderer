@@ -101,6 +101,10 @@ class HaifaLogoAscii extends HTMLElement {
     this.points = null;
     this.frameIndex = 0;
     this.animationTimer = 0;
+    this.measuredFps = 0;
+    this.statsWindowFrames = 0;
+    this.statsWindowStarted = performance.now();
+    this.lastStatsReport = 0;
     this.reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   }
 
@@ -159,10 +163,15 @@ class HaifaLogoAscii extends HTMLElement {
 
   startAnimation() {
     clearInterval(this.animationTimer);
-    this.draw();
-    if (this.hasAttribute("paused") || this.motionReduced) return;
-
     const fps = Math.max(1, Math.min(30, Number(this.getAttribute("fps")) || 18));
+    const isPaused = this.hasAttribute("paused") || this.motionReduced;
+    this.measuredFps = isPaused ? 0 : fps;
+    this.statsWindowFrames = 0;
+    this.statsWindowStarted = performance.now();
+    this.lastStatsReport = 0;
+    this.draw();
+    if (isPaused) return;
+
     this.animationTimer = setInterval(() => this.draw(), 1000 / fps);
   }
 
@@ -186,6 +195,7 @@ class HaifaLogoAscii extends HTMLElement {
   draw() {
     if (!this.points) return;
 
+    const renderStarted = performance.now();
     const count = COLUMNS * ROWS;
     const chars = new Uint8Array(count);
     const colors = new Uint32Array(count);
@@ -227,6 +237,7 @@ class HaifaLogoAscii extends HTMLElement {
     }
 
     const rows = [];
+    let visibleCells = 0;
     for (let row = 0; row < ROWS; row += 1) {
       let line = "";
       for (let column = 0; column < COLUMNS; column += 1) {
@@ -236,12 +247,39 @@ class HaifaLogoAscii extends HTMLElement {
           line += " ";
           continue;
         }
+        visibleCells += 1;
         line += `<span style="color:${colorToHex(colors[index])}">${escapeHtml(RAMP[charIndex])}</span>`;
       }
       rows.push(line);
     }
 
     this.screen.innerHTML = rows.join("\n");
+
+    const now = performance.now();
+    this.statsWindowFrames += 1;
+    const statsElapsed = now - this.statsWindowStarted;
+    if (statsElapsed >= 500) {
+      this.measuredFps = this.statsWindowFrames * 1000 / statsElapsed;
+      this.statsWindowFrames = 0;
+      this.statsWindowStarted = now;
+    }
+
+    const isPaused = this.hasAttribute("paused") || this.motionReduced;
+    if (now - this.lastStatsReport >= 250 || isPaused) {
+      this.lastStatsReport = now;
+      this.dispatchEvent(new CustomEvent("renderstats", {
+        bubbles: true,
+        composed: true,
+        detail: {
+          fps: isPaused ? 0 : this.measuredFps,
+          frameTime: now - renderStarted,
+          pointCount: this.points.length,
+          visibleCells,
+          frame: this.frameIndex,
+          paused: isPaused,
+        },
+      }));
+    }
   }
 
   showError(error) {

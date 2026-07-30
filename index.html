@@ -15,39 +15,149 @@
       }
       main { width: min(1100px, 100%); margin: auto; }
       h1 { margin: 0 0 2rem; }
-      h2 { margin: 2rem 0 0.75rem; }
       .tools { margin: -1rem 0 2rem; }
       .tools a { color: #087fa3; font-weight: 700; }
+      .demo {
+        margin-top: 2rem;
+        overflow: hidden;
+        border-radius: 0.9rem;
+        background: #fff;
+        box-shadow: 0 1rem 3rem rgb(24 50 71 / 16%);
+      }
+      .demo h2 { margin: 0; font-size: clamp(1.15rem, 3vw, 1.5rem); }
+      .demo-header,
+      .controls,
+      .stats {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+      }
+      .demo-header {
+        justify-content: space-between;
+        padding: 1rem;
+      }
+      .controls label {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        color: #526879;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+      .controls button {
+        min-width: 5rem;
+        min-height: 2.5rem;
+        border: 1px solid #087fa3;
+        border-radius: 0.55rem;
+        background: #087fa3;
+        color: #fff;
+        font: inherit;
+        font-weight: 750;
+        cursor: pointer;
+      }
+      .controls input[type="range"] { width: 9rem; accent-color: #087fa3; }
+      .controls output { min-width: 2.5rem; color: #183247; font-variant-numeric: tabular-nums; }
+      .stats {
+        margin: 0;
+        padding: 0.8rem 1rem;
+        border-top: 1px solid #d7e2e9;
+      }
+      .stats div { display: flex; align-items: baseline; gap: 0.35rem; }
+      .stats dt { color: #526879; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; }
+      .stats dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 750; }
       haifa-logo-ascii { box-shadow: 0 1rem 3rem rgb(24 50 71 / 16%); }
+      .demo haifa-logo-ascii { border-radius: 0; box-shadow: none; }
       .white { --haifa-ascii-background: #fff; }
+      @media (max-width: 720px) {
+        .demo-header { align-items: flex-start; }
+        .controls { width: 100%; }
+        .controls label { flex: 1; }
+        .controls input[type="range"] { min-width: 7rem; width: 100%; }
+      }
     </style>
-    <script type="module" src="./src/haifa-logo-ascii.js?v=27"></script>
+    <script type="module" src="./src/haifa-logo-ascii.js?v=28"></script>
+    <script type="module" src="./src/logo-demo-controls.js?v=28"></script>
   </head>
   <body>
     <main>
       <h1>3D ASCII logo components</h1>
       <p class="tools"><a href="./point-cloud-editor.html">Open point-cloud editor</a></p>
 
-      <h2>University of Haifa - old logo</h2>
-      <haifa-logo-ascii
-        label="Animated 3D ASCII art of the University of Haifa old logo"
-        motion="always"
-      ></haifa-logo-ascii>
+      <section class="demo" data-logo-demo>
+        <div class="demo-header">
+          <h2>University of Haifa - old logo</h2>
+          <div class="controls">
+            <button type="button" data-action="toggle-play">Pause</button>
+            <label>
+              Speed
+              <input data-control="speed" type="range" min="0.1" max="3" step="0.1" value="1" />
+              <output data-output="speed">1.0×</output>
+            </label>
+          </div>
+        </div>
+        <haifa-logo-ascii
+          label="Animated 3D ASCII art of the University of Haifa old logo"
+          motion="always"
+        ></haifa-logo-ascii>
+        <dl class="stats" aria-label="Real-time rendering statistics">
+          <div><dt>FPS</dt><dd data-stat="fps">—</dd></div>
+          <div><dt>Frame time</dt><dd data-stat="frame-time">—</dd></div>
+          <div><dt>3D points</dt><dd data-stat="points">—</dd></div>
+          <div><dt>Visible cells</dt><dd data-stat="visible-cells">—</dd></div>
+        </dl>
+      </section>
 
-      <h2>University of Haifa - new logo</h2>
-      <haifa-logo-ascii
-        class="white"
-        src="./data/second-logo-points.json?v=27"
-        label="Animated 3D ASCII art of the University of Haifa new logo"
-        motion="always"
-      ></haifa-logo-ascii>
+      <section class="demo" data-logo-demo>
+        <div class="demo-header">
+          <h2>University of Haifa - new logo</h2>
+          <div class="controls">
+            <button type="button" data-action="toggle-play">Pause</button>
+            <label>
+              Speed
+              <input data-control="speed" type="range" min="0.1" max="3" step="0.1" value="1" />
+              <output data-output="speed">1.0×</output>
+            </label>
+          </div>
+        </div>
+        <haifa-logo-ascii
+          class="white"
+          src="./data/second-logo-points.json?v=27"
+          label="Animated 3D ASCII art of the University of Haifa new logo"
+          motion="always"
+        ></haifa-logo-ascii>
+        <dl class="stats" aria-label="Real-time rendering statistics">
+          <div><dt>FPS</dt><dd data-stat="fps">—</dd></div>
+          <div><dt>Frame time</dt><dd data-stat="frame-time">—</dd></div>
+          <div><dt>3D points</dt><dd data-stat="points">—</dd></div>
+          <div><dt>Visible cells</dt><dd data-stat="visible-cells">—</dd></div>
+        </dl>
+      </section>
 
-      <h2>True 3D sphere example</h2>
-      <haifa-logo-ascii
-        src="./data/sphere-points.json?v=27"
-        label="Animated 3D ASCII art of a sphere"
-        motion="always"
-      ></haifa-logo-ascii>
+      <section class="demo" data-logo-demo>
+        <div class="demo-header">
+          <h2>True 3D sphere example</h2>
+          <div class="controls">
+            <button type="button" data-action="toggle-play">Pause</button>
+            <label>
+              Speed
+              <input data-control="speed" type="range" min="0.1" max="3" step="0.1" value="1" />
+              <output data-output="speed">1.0×</output>
+            </label>
+          </div>
+        </div>
+        <haifa-logo-ascii
+          src="./data/sphere-points.json?v=27"
+          label="Animated 3D ASCII art of a sphere"
+          motion="always"
+        ></haifa-logo-ascii>
+        <dl class="stats" aria-label="Real-time rendering statistics">
+          <div><dt>FPS</dt><dd data-stat="fps">—</dd></div>
+          <div><dt>Frame time</dt><dd data-stat="frame-time">—</dd></div>
+          <div><dt>3D points</dt><dd data-stat="points">—</dd></div>
+          <div><dt>Visible cells</dt><dd data-stat="visible-cells">—</dd></div>
+        </dl>
+      </section>
     </main>
   </body>
 </html>
