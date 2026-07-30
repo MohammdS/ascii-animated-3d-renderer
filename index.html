@@ -21,7 +21,7 @@
       haifa-logo-ascii { box-shadow: 0 1rem 3rem rgb(24 50 71 / 16%); }
       .white { --haifa-ascii-background: #fff; }
     </style>
-    <script type="module" src="./src/haifa-logo-ascii.js?v=26"></script>
+    <script type="module" src="./src/haifa-logo-ascii.js?v=27"></script>
   </head>
   <body>
     <main>
@@ -37,8 +37,15 @@
       <h2>University of Haifa - new logo</h2>
       <haifa-logo-ascii
         class="white"
-        src="./data/second-logo-points.json?v=26"
+        src="./data/second-logo-points.json?v=27"
         label="Animated 3D ASCII art of the University of Haifa new logo"
+        motion="always"
+      ></haifa-logo-ascii>
+
+      <h2>True 3D sphere example</h2>
+      <haifa-logo-ascii
+        src="./data/sphere-points.json?v=27"
+        label="Animated 3D ASCII art of a sphere"
         motion="always"
       ></haifa-logo-ascii>
     </main>

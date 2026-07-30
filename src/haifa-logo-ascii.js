@@ -1,7 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("../data/haifa-logo-points.json?v=26", import.meta.url);
+const DEFAULT_DATA_URL = new URL("../data/haifa-logo-points.json?v=27", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -51,30 +51,19 @@ template.innerHTML = `
 
 const pointSets = new Map();
 
-function expandPoints(points) {
-  const quantized = new Set(points.map(([x, y]) => `${Math.round(x / 0.16)},${Math.round(y / 0.16)}`));
-  const result = [];
-  for (const [index, point] of points.entries()) {
-    const [x, y, r, g, b] = point;
-    const qx = Math.round(x / 0.16);
-    const qy = Math.round(y / 0.16);
-    const surface = 0.12 * Math.sin(x * 1.15) + 0.06 * Math.cos(y * 2);
+function validatePoints(value) {
+  if (!Array.isArray(value)) throw new Error("Point data must be an array.");
 
-    result.push([x, y, surface + 0.42, r, g, b]);
-    if (index % 3 === 0) result.push([x, y, surface - 0.42, r, g, b]);
-
-    const isRim =
-      !quantized.has(`${qx - 1},${qy}`) ||
-      !quantized.has(`${qx + 1},${qy}`) ||
-      !quantized.has(`${qx},${qy - 1}`) ||
-      !quantized.has(`${qx},${qy + 1}`);
-
-    if (!isRim) continue;
-    for (const depth of [-0.28, 0, 0.28]) {
-      result.push([x, y, surface + depth, r, g, b]);
+  return value.map((point, index) => {
+    if (!Array.isArray(point) || point.length !== 6 || !point.every(Number.isFinite)) {
+      throw new Error(`Point ${index + 1} must contain six numbers: [x, y, z, r, g, b].`);
     }
-  }
-  return result;
+    const [x, y, z, r, g, b] = point;
+    if ([r, g, b].some((channel) => channel < 0 || channel > 255)) {
+      throw new Error(`Point ${index + 1} contains an RGB value outside 0-255.`);
+    }
+    return [x, y, z, Math.round(r), Math.round(g), Math.round(b)];
+  });
 }
 
 function loadPoints(url) {
@@ -84,7 +73,7 @@ function loadPoints(url) {
         if (!response.ok) throw new Error(`Point data request failed (${response.status})`);
         return response.json();
       })
-      .then(expandPoints);
+      .then(validatePoints);
     pointSets.set(url.href, request);
   }
   return pointSets.get(url.href);

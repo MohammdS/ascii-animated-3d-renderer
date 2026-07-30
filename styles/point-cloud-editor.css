@@ -69,6 +69,7 @@ fieldset label { color: #183247; font-size: 0.9rem; text-transform: none; letter
 select,
 button,
 input[type="color"],
+input[type="number"],
 input[type="file"] {
   min-height: 2.6rem;
   border: 1px solid #b9cad5;
@@ -80,6 +81,7 @@ input[type="file"] {
 
 select { padding: 0 2rem 0 0.7rem; }
 input[type="color"] { width: 4rem; padding: 0.2rem; }
+input[type="number"] { width: 6rem; padding: 0 0.7rem; }
 input[type="file"] {
   max-width: 14rem;
   padding: 0.45rem;

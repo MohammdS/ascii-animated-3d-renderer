@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ASCII Logo Point Editor</title>
     <link rel="stylesheet" href="./styles/point-cloud-editor.css" />
-    <script type="module" src="./src/point-cloud-editor.js?v=26"></script>
+    <script type="module" src="./src/point-cloud-editor.js?v=27"></script>
   </head>
   <body>
     <main>
@@ -22,8 +22,8 @@
         <label>
           Logo
           <select id="logo">
-            <option value="./data/haifa-logo-points.json?v=26">University of Haifa - old logo</option>
-            <option value="./data/second-logo-points.json?v=26">University of Haifa - new logo</option>
+            <option value="./data/haifa-logo-points.json?v=27">University of Haifa - old logo</option>
+            <option value="./data/second-logo-points.json?v=27">University of Haifa - new logo</option>
           </select>
         </label>
 
@@ -49,6 +49,11 @@
         <label>
           Point color
           <input id="color" type="color" value="#3cb5e7" />
+        </label>
+
+        <label>
+          Point depth
+          <input id="depth" type="number" min="-3" max="3" step="0.05" value="0.42" />
         </label>
 
         <label>
@@ -80,7 +85,8 @@
 
       <p class="help">
         Drag to paint or erase. In <strong>ASCII Render</strong> view, edits snap to rendered character cells.
-        Right-click temporarily removes points regardless of the selected tool.
+        New points use the selected <strong>Point depth</strong>. Right-click temporarily removes points regardless
+        of the selected tool.
         Use <strong>Load JSON</strong> to inspect a local point-data file. Exported JSON can replace the
         corresponding point-data file in this folder.
       </p>

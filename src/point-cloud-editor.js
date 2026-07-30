@@ -4,6 +4,7 @@ const logoSelect = document.querySelector("#logo");
 const fileInput = document.querySelector("#json-file");
 const viewSelect = document.querySelector("#view-mode");
 const colorInput = document.querySelector("#color");
+const depthInput = document.querySelector("#depth");
 const brushSelect = document.querySelector("#brush-size");
 const countOutput = document.querySelector("#count");
 const statusOutput = document.querySelector("#status");
@@ -33,6 +34,11 @@ function selectedTool(event) {
 function selectedColor() {
   const value = colorInput.value;
   return [1, 3, 5].map((index) => Number.parseInt(value.slice(index, index + 2), 16));
+}
+
+function selectedDepth() {
+  const value = Number(depthInput.value);
+  return Number.isFinite(value) ? value : 0;
 }
 
 function updateHistoryButtons() {
@@ -79,11 +85,11 @@ function render() {
   context.fillRect(0, 0, canvas.width, canvas.height);
   const radius = Math.max(1.2, Math.min(2.5, transform.scale * 0.012));
 
-  for (const [x, y, r, g, b] of points) {
+  for (const [x, y, z, r, g, b] of points) {
     const [screenX, screenY] = modelToCanvas(x, y);
     context.fillStyle = `rgb(${r}, ${g}, ${b})`;
     context.beginPath();
-    context.arc(screenX, screenY, radius, 0, Math.PI * 2);
+    context.arc(screenX, screenY, radius * Math.max(0.7, Math.min(1.3, 1 + z * 0.12)), 0, Math.PI * 2);
     context.fill();
   }
   countOutput.textContent = points.length.toLocaleString();
@@ -99,24 +105,20 @@ function buildAsciiGrid() {
   const zBuffer = new Float32Array(count);
   zBuffer.fill(-1e9);
 
-  for (const [x, y, r, g, b] of points) {
-    const baseZ = 0.22 * Math.sin(x * 1.15) + 0.1 * Math.cos(y * 2);
-    for (const dz of [-0.1, 0, 0.1]) {
-      const z = baseZ + dz;
-      const sx = Math.trunc(columns / 2 + x * scale * 1.18);
-      const sy = Math.trunc(rows / 2 - y * scale * 0.92);
-      if (sx < 0 || sx >= columns || sy < 0 || sy >= rows) continue;
-      const index = sy * columns + sx;
-      if (z <= zBuffer[index]) continue;
-      zBuffer[index] = z;
-      const light = Math.max(0, Math.min(1, 0.52 + 0.38 * ((z + 1) / 2.2) + 0.1 * Math.sin(x)));
-      chars[index] = Math.min(RAMP.length - 1, Math.trunc(light * (RAMP.length - 1)));
-      const shade = 0.72 + 0.34 * light;
-      const rr = Math.max(0, Math.min(255, Math.trunc(r * shade)));
-      const gg = Math.max(0, Math.min(255, Math.trunc(g * shade)));
-      const bb = Math.max(0, Math.min(255, Math.trunc(b * shade)));
-      colors[index] = (rr << 16) | (gg << 8) | bb;
-    }
+  for (const [x, y, z, r, g, b] of points) {
+    const sx = Math.trunc(columns / 2 + x * scale * 1.18);
+    const sy = Math.trunc(rows / 2 - y * scale * 0.92);
+    if (sx < 0 || sx >= columns || sy < 0 || sy >= rows) continue;
+    const index = sy * columns + sx;
+    if (z <= zBuffer[index]) continue;
+    zBuffer[index] = z;
+    const light = Math.max(0, Math.min(1, 0.56 + 0.3 * ((z + 3.2) / 6.4) + 0.1 * Math.sin(x)));
+    chars[index] = Math.min(RAMP.length - 1, Math.trunc(light * (RAMP.length - 1)));
+    const shade = 0.72 + 0.34 * light;
+    const rr = Math.max(0, Math.min(255, Math.trunc(r * shade)));
+    const gg = Math.max(0, Math.min(255, Math.trunc(g * shade)));
+    const bb = Math.max(0, Math.min(255, Math.trunc(b * shade)));
+    colors[index] = (rr << 16) | (gg << 8) | bb;
   }
   return { columns, rows, scale, chars, colors };
 }
@@ -174,14 +176,14 @@ async function loadLogo() {
 function validatePointData(value) {
   if (!Array.isArray(value)) throw new Error("The JSON root must be an array.");
   return value.map((point, index) => {
-    if (!Array.isArray(point) || point.length !== 5 || !point.every(Number.isFinite)) {
-      throw new Error(`Point ${index + 1} must contain exactly five numbers: [x, y, r, g, b].`);
+    if (!Array.isArray(point) || point.length !== 6 || !point.every(Number.isFinite)) {
+      throw new Error(`Point ${index + 1} must contain exactly six numbers: [x, y, z, r, g, b].`);
     }
-    const [x, y, r, g, b] = point;
+    const [x, y, z, r, g, b] = point;
     if ([r, g, b].some((channel) => channel < 0 || channel > 255)) {
       throw new Error(`Point ${index + 1} contains an RGB value outside 0-255.`);
     }
-    return [x, y, Math.round(r), Math.round(g), Math.round(b)];
+    return [x, y, z, Math.round(r), Math.round(g), Math.round(b)];
   });
 }
 
@@ -233,13 +235,14 @@ function editAt(event) {
 
   if (tool === "add") {
     const [r, g, b] = selectedColor();
+    const z = selectedDepth();
     const half = Math.floor(brush / 2);
     for (let row = -half; row <= half; row += 1) {
       for (let column = -half; column <= half; column += 1) {
         const px = x + column * spacing;
         const py = y + row * spacing;
         const duplicate = points.some((point) => (point[0] - px) ** 2 + (point[1] - py) ** 2 < 0.00008);
-        if (!duplicate) points.push([Number(px.toFixed(3)), Number(py.toFixed(3)), r, g, b]);
+        if (!duplicate) points.push([Number(px.toFixed(3)), Number(py.toFixed(3)), z, r, g, b]);
       }
     }
     setStatus("Point added");
