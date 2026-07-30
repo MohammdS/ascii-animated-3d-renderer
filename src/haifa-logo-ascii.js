@@ -1,6 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
+const CAMERA_DISTANCE = 7.5;
 const DEFAULT_DATA_URL = new URL("../data/haifa-logo-points.json?v=27", import.meta.url);
 
 const template = document.createElement("template");
@@ -91,7 +92,7 @@ function colorToHex(color) {
 }
 
 class HaifaLogoAscii extends HTMLElement {
-  static observedAttributes = ["label", "paused", "speed", "fps", "motion", "src"];
+  static observedAttributes = ["label", "paused", "speed", "fps", "motion", "projection", "src"];
 
   constructor() {
     super();
@@ -213,12 +214,16 @@ class HaifaLogoAscii extends HTMLElement {
     const cosY = Math.cos(angleY);
     const sinY = Math.sin(angleY);
     const scale = Math.min(COLUMNS / 10.8, ROWS / 5.6);
+    const projection = this.getAttribute("projection") === "perspective" ? "perspective" : "orthographic";
 
     for (const [x, y, z, r, g, b] of this.points) {
       const x2 = x * cosY + z * sinY;
       const z2 = -x * sinY + z * cosY;
-      const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18);
-      const sy = Math.trunc(ROWS / 2 - y * scale * 0.92);
+      const perspectiveScale = projection === "perspective"
+        ? CAMERA_DISTANCE / Math.max(0.1, CAMERA_DISTANCE - z2)
+        : 1;
+      const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18 * perspectiveScale);
+      const sy = Math.trunc(ROWS / 2 - y * scale * 0.92 * perspectiveScale);
       if (sx < 0 || sx >= COLUMNS || sy < 0 || sy >= ROWS) continue;
 
       const index = sy * COLUMNS + sx;
@@ -277,6 +282,7 @@ class HaifaLogoAscii extends HTMLElement {
           visibleCells,
           frame: this.frameIndex,
           paused: isPaused,
+          projection,
         },
       }));
     }

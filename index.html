@@ -56,6 +56,15 @@
         font-weight: 750;
         cursor: pointer;
       }
+      .controls select {
+        min-height: 2.5rem;
+        padding: 0 2rem 0 0.7rem;
+        border: 1px solid #b9cad5;
+        border-radius: 0.55rem;
+        background: #fff;
+        color: #183247;
+        font: inherit;
+      }
       .controls input[type="range"] { width: 9rem; accent-color: #087fa3; }
       .controls output { min-width: 2.5rem; color: #183247; font-variant-numeric: tabular-nums; }
       .stats {
@@ -76,8 +85,8 @@
         .controls input[type="range"] { min-width: 7rem; width: 100%; }
       }
     </style>
-    <script type="module" src="./src/haifa-logo-ascii.js?v=28"></script>
-    <script type="module" src="./src/logo-demo-controls.js?v=28"></script>
+    <script type="module" src="./src/haifa-logo-ascii.js?v=29"></script>
+    <script type="module" src="./src/logo-demo-controls.js?v=29"></script>
   </head>
   <body>
     <main>
@@ -93,6 +102,13 @@
               Speed
               <input data-control="speed" type="range" min="0.1" max="3" step="0.1" value="1" />
               <output data-output="speed">1.0×</output>
+            </label>
+            <label>
+              Projection
+              <select data-control="projection">
+                <option value="orthographic">Orthographic</option>
+                <option value="perspective">Perspective</option>
+              </select>
             </label>
           </div>
         </div>
@@ -117,6 +133,13 @@
               Speed
               <input data-control="speed" type="range" min="0.1" max="3" step="0.1" value="1" />
               <output data-output="speed">1.0×</output>
+            </label>
+            <label>
+              Projection
+              <select data-control="projection">
+                <option value="orthographic">Orthographic</option>
+                <option value="perspective">Perspective</option>
+              </select>
             </label>
           </div>
         </div>
@@ -143,6 +166,13 @@
               Speed
               <input data-control="speed" type="range" min="0.1" max="3" step="0.1" value="1" />
               <output data-output="speed">1.0×</output>
+            </label>
+            <label>
+              Projection
+              <select data-control="projection">
+                <option value="orthographic">Orthographic</option>
+                <option value="perspective">Perspective</option>
+              </select>
             </label>
           </div>
         </div>

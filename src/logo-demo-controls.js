@@ -5,6 +5,7 @@ for (const demo of document.querySelectorAll("[data-logo-demo]")) {
   const playButton = demo.querySelector('[data-action="toggle-play"]');
   const speedInput = demo.querySelector('[data-control="speed"]');
   const speedOutput = demo.querySelector('[data-output="speed"]');
+  const projectionSelect = demo.querySelector('[data-control="projection"]');
   const fpsOutput = demo.querySelector('[data-stat="fps"]');
   const frameTimeOutput = demo.querySelector('[data-stat="frame-time"]');
   const pointsOutput = demo.querySelector('[data-stat="points"]');
@@ -27,6 +28,10 @@ for (const demo of document.querySelectorAll("[data-logo-demo]")) {
     speedOutput.value = `${speed.toFixed(1)}×`;
   });
 
+  projectionSelect.addEventListener("change", () => {
+    renderer.setAttribute("projection", projectionSelect.value);
+  });
+
   renderer.addEventListener("renderstats", (event) => {
     const { fps, frameTime, pointCount, visibleCells } = event.detail;
     fpsOutput.textContent = fps.toFixed(1);
@@ -35,5 +40,8 @@ for (const demo of document.querySelectorAll("[data-logo-demo]")) {
     visibleCellsOutput.textContent = numberFormatter.format(visibleCells);
   });
 
+  projectionSelect.value = renderer.getAttribute("projection") === "perspective"
+    ? "perspective"
+    : "orthographic";
   updatePlaybackLabel();
 }

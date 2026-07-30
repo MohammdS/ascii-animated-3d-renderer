@@ -42,6 +42,7 @@ Each preview has:
 
 - **Play / Pause**: stops or resumes that preview without affecting the others.
 - **Speed**: changes the Y-axis rotation speed from `0.1x` to `3.0x`.
+- **Projection**: switches independently between orthographic and perspective projection.
 - **FPS**: the renderer's measured frames per second.
 - **Frame time**: how long the most recent ASCII frame took to build.
 - **3D points**: the number of source points processed per frame.
@@ -206,19 +207,27 @@ This is the standard Y-axis rotation formula.
 
 ## Projection Math
 
-For projection, I keep it simple and orthographic. That means I do not use perspective. I just drop the Z value for screen position:
+The renderer supports two projection modes. Orthographic is the default and keeps the original point-cloud scale regardless of depth:
 
 ```js
 const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18);
 const sy = Math.trunc(ROWS / 2 - y * scale * 0.92);
 ```
 
-So:
+Perspective mode scales X and Y according to the point's distance from a virtual camera:
+
+```js
+const perspectiveScale = CAMERA_DISTANCE / (CAMERA_DISTANCE - z2);
+const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18 * perspectiveScale);
+const sy = Math.trunc(ROWS / 2 - y * scale * 0.92 * perspectiveScale);
+```
+
+In both modes:
 
 - rotated `x2` controls horizontal screen position
 - original `y` controls vertical screen position
-- `z2` is not used for screen position
-- `z2` is still used for depth sorting and lighting
+- rotated `z2` controls depth sorting and lighting
+- in perspective mode, `z2` also makes nearer points appear larger and farther points appear smaller
 
 ## Z-Buffer
 
@@ -260,7 +269,7 @@ This is not a full 3D engine. It is a small graphics experiment focused on:
 - true 3D point-cloud representation
 - reusable geometry input
 - Y-axis rotation
-- orthographic projection
+- orthographic and perspective projection
 - z-buffer visibility
 - ASCII shading
 - browser-based interaction
