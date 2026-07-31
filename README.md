@@ -36,7 +36,7 @@ http://127.0.0.1:8000/index.html
 
 This is the main preview page. It shows the two animated ASCII logo previews, a sphere example, interactive playback controls, live rendering statistics, and a link to the point-cloud editor.
 
-![Animated logo previews](./assets/logo-preview.gif)
+![Interactive ASCII renderer controls and live statistics](./assets/interactive-controls-stats.png)
 
 Each preview has:
 
@@ -47,6 +47,10 @@ Each preview has:
 - **Frame time**: how long the most recent ASCII frame took to build.
 - **3D points**: the number of source points processed per frame.
 - **Visible cells**: the number of ASCII cells that survived projection and depth testing.
+
+The sphere preview demonstrates the true 3D point format and the perspective projection mode:
+
+![True 3D ASCII sphere rendered with perspective projection](./assets/perspective-sphere.png)
 
 `point-cloud-editor.html`
 
@@ -108,6 +112,8 @@ haifa-logo-ascii-3d/
 |   `-- build-3d-point-data.mjs
 `-- assets/
     |-- logo-preview.gif
+    |-- interactive-controls-stats.png
+    |-- perspective-sphere.png
     `-- cloud-points-editor.png
 ```
 
