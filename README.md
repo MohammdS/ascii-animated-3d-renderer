@@ -36,7 +36,7 @@ http://127.0.0.1:8000/index.html
 
 This is the main preview page. It shows the two animated ASCII logo previews, a sphere example, interactive playback controls, live rendering statistics, and a link to the point-cloud editor.
 
-![Interactive ASCII renderer controls and live statistics](./assets/interactive-controls-stats.png)
+![Interactive ASCII renderer controls and live statistics](./assets/interactive-controls-stats-preview.gif)
 
 Each preview has:
 
@@ -50,7 +50,14 @@ Each preview has:
 
 The sphere preview demonstrates the true 3D point format and the perspective projection mode:
 
-![True 3D ASCII sphere rendered with perspective projection](./assets/perspective-sphere.png)
+![True 3D ASCII sphere rendered with perspective projection](./assets/3d-sphere-preview.png)
+
+The same logo can be viewed with orthographic or perspective projection:
+
+<p align="center">
+  <img src="./assets/orthographic-projection.gif" alt="University of Haifa logo rendered with orthographic projection" width="49%">
+  <img src="./assets/perspective-projection.gif" alt="University of Haifa logo rendered with perspective projection" width="49%">
+</p>
 
 `point-cloud-editor.html`
 
@@ -112,8 +119,10 @@ haifa-logo-ascii-3d/
 |   `-- build-3d-point-data.mjs
 `-- assets/
     |-- logo-preview.gif
-    |-- interactive-controls-stats.png
-    |-- perspective-sphere.png
+    |-- interactive-controls-stats-preview.gif
+    |-- orthographic-projection.gif
+    |-- perspective-projection.gif
+    |-- 3d-sphere-preview.png
     `-- cloud-points-editor.png
 ```
 
