@@ -54,10 +54,9 @@ The sphere preview demonstrates the true 3D point format and the perspective pro
 
 The same logo can be viewed with orthographic or perspective projection:
 
-<p align="center">
-  <img src="./assets/orthographic-projection.gif" alt="University of Haifa logo rendered with orthographic projection" width="49%">
-  <img src="./assets/perspective-projection.gif" alt="University of Haifa logo rendered with perspective projection" width="49%">
-</p>
+| Orthographic projection | Perspective projection |
+|:--:|:--:|
+| ![University of Haifa logo rendered with orthographic projection](./assets/orthographic-projection.gif) | ![University of Haifa logo rendered with perspective projection](./assets/perspective-projection.gif) |
 
 `point-cloud-editor.html`
 
